@@ -6,56 +6,63 @@
 //
 
 import SwiftUI
-import SwiftData
+import MapKit
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @State private var isHalfModalPresented = true // 常にモーダルを表示
+    @State private var slVal : Double = 0
+    @State private var isRoute: Bool = false
+    @State private var isRun: Bool = false
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
+        ZStack {
+            Map()
+            VStack{
+                Button("ハーフモーダルを表示") {
+                    isHalfModalPresented = true
                 }
             }
-        } detail: {
-            Text("Select an item")
+        }
+        
+        .sheet(isPresented: $isHalfModalPresented) {
+        HalfModalView()
+                .presentationDetents([.height(100), .medium, .large]) // デフォルトは小さいサイズ
+                .presentationDragIndicator(.visible) // ドラッグインジケータを表示
+                .presentationBackgroundInteraction(.enabled(upThrough: .height(100)))
+        }
+        if isRoute {
+            
+        }
+        if isRun {
+            
         }
     }
+}
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
+struct HalfModalView: View {
+    @State private var slVal : Double = 0
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                Text("ハーフモーダル")
+                    .font(.headline)
 
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+                Slider(value: $slVal, in: 0...10, step: 1)
+                            Text("\(slVal)")
+
+                ForEach(0..<30, id: \.self) { i in
+                    Text("項目 \(i + 1)")
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.gray.opacity(0.2))
+                        .cornerRadius(8)
+                }
             }
+            .padding()
         }
     }
 }
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }
