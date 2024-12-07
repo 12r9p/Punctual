@@ -9,59 +9,102 @@ import SwiftUI
 import MapKit
 
 struct ContentView: View {
-    @State private var isHalfModalPresented = true // 常にモーダルを表示
-    @State private var slVal : Double = 0
+    @State private var debug: Bool = true
+    //other state
+    @State private var calendar = Calendar(identifier: .gregorian)
+
+    //modal state
+    @State private var isSelect: Bool = true
     @State private var isRoute: Bool = false
     @State private var isRun: Bool = false
-
+    @State private var isFinish: Bool = false
+    
+    //running state
+    @State private var targetTime: Date = .init()
+    @State private var needSpeed: Double = 0
+    @State private var speedDifference: Double = 0
+    @State private var remainingTime: TimeInterval = 0
+    @State private var speed: Double = 0
+    @State private var remainingDistance: Double = 0
+    
+    
+    //    @State private var preview = RunningActivityView(
+    //        targetTime: calendar.date(from: DateComponents(year: 2024, month: 12, day: 7, hour: 16, minute: 0, second: 0))!,
+    //        needSpeed: 6.6,
+    //        speed: 5.8,
+    //        remainingDistance: 100,
+    //        totalDistance: 1000
+    //    )
+    
+    
     var body: some View {
         ZStack {
-            Map()
-            VStack{
-                Button("ハーフモーダルを表示") {
-                    isHalfModalPresented = true
-                }
-            }
+            MapView(isSelect:$isSelect, isRoute: $isRoute, isRun: $isRun, isFinish: $isFinish, degub: $debug)
         }
-        
-        .sheet(isPresented: $isHalfModalPresented) {
-        HalfModalView()
-                .presentationDetents([.height(100), .medium, .large]) // デフォルトは小さいサイズ
+        .sheet(isPresented: $isSelect) {
+            SelectLocationModalView(isRoute: $isRoute,isSelect: $isSelect,isRun: isRun)
+                .presentationBackground(.regularMaterial)
+                .cornerRadius(20)
+                .presentationDetents([.height(100), .medium,.fraction(0.9)]) // デフォルトは小さいサイズ
                 .presentationDragIndicator(.visible) // ドラッグインジケータを表示
                 .presentationBackgroundInteraction(.enabled(upThrough: .height(100)))
-        }
-        if isRoute {
-            
-        }
-        if isRun {
-            
+                
         }
     }
 }
 
-struct HalfModalView: View {
-    @State private var slVal : Double = 0
+struct SelectLocationModalView: View {
+    @Binding var isRoute: Bool
+    @Binding var isSelect: Bool
+    @State var isRun: Bool
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                Text("ハーフモーダル")
+                Text("select location")
                     .font(.headline)
-
-                Slider(value: $slVal, in: 0...10, step: 1)
-                            Text("\(slVal)")
-
-                ForEach(0..<30, id: \.self) { i in
-                    Text("項目 \(i + 1)")
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.gray.opacity(0.2))
-                        .cornerRadius(8)
+                Button("場所を選択"){
+                    isRoute = true
                 }
+                .sheet(isPresented: $isRoute) {
+                    routeModalView(isSelect: $isSelect, isRoute: $isRoute, isRun: isRun)
+                        .presentationBackground(.regularMaterial)
+                        .presentationDetents([.height(200)]) // デフォルトは小さいサイズ
+                        .presentationDragIndicator(.visible) // ドラッグインジケータを表示
+                        .presentationBackgroundInteraction(.enabled(upThrough: .height(200)))
+                }
+            }
+            .padding()
+            .interactiveDismissDisabled()
+        }
+    }
+}
+
+struct routeModalView: View {
+    @Binding var isSelect: Bool
+    @Binding var isRoute: Bool
+    @State var isRun: Bool
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                Text("select route")
+                    .font(.headline)
+                Button("戻る"){
+                    isSelect = true
+                    isRoute = false
+                }
+                Button("進む"){
+                    isSelect = false
+                    isRoute = false
+                    isRun = true
+                }
+
             }
             .padding()
         }
     }
 }
+
+
 
 #Preview {
     ContentView()
