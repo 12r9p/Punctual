@@ -9,23 +9,7 @@ import SwiftUI
 import MapKit
 
 struct ContentView: View {
-    @State private var debug: Bool = true
-    //other state
-    @State private var calendar = Calendar(identifier: .gregorian)
-
-    //modal state
-    @State private var isSelect: Bool = true
-    @State private var isRoute: Bool = false
-    @State private var isRun: Bool = false
-    @State private var isFinish: Bool = false
-    
-    //running state
-    @State private var targetTime: Date = .init()
-    @State private var needSpeed: Double = 0
-    @State private var speedDifference: Double = 0
-    @State private var remainingTime: TimeInterval = 0
-    @State private var speed: Double = 0
-    @State private var remainingDistance: Double = 0
+    @EnvironmentObject var state: State
     
     
     //    @State private var preview = RunningActivityView(
@@ -38,35 +22,41 @@ struct ContentView: View {
     
     
     var body: some View {
-        ZStack {
-            MapView(isSelect:$isSelect, isRoute: $isRoute, isRun: $isRun, isFinish: $isFinish, degub: $debug)
-        }
-        .sheet(isPresented: $isSelect) {
-            SelectLocationModalView(isRoute: $isRoute,isSelect: $isSelect,isRun: isRun)
-                .presentationBackground(.regularMaterial)
-                .cornerRadius(20)
-                .presentationDetents([.height(100), .medium,.fraction(0.9)]) // デフォルトは小さいサイズ
-                .presentationDragIndicator(.visible) // ドラッグインジケータを表示
-                .presentationBackgroundInteraction(.enabled(upThrough: .height(100)))
+        VStack{
+            if state.debug{
+                Toggle("Select", isOn: $state.isSelect)
+                Toggle("Route", isOn: $state.isRoute)
+                Toggle("Run", isOn: $state.isRun)
+                Toggle("Finish", isOn: $state.isFinish)
+            }
+            ZStack {
+                MapView()
+            }
+            .sheet(isPresented: $state.isSelect) {
+                SelectLocationModalView()
+                    .presentationBackground(.regularMaterial)
+                    .cornerRadius(20)
+                    .presentationDetents([.height(100), .medium,.fraction(0.9)]) // デフォルトは小さいサイズ
+                    .presentationDragIndicator(.visible) // ドラッグインジケータを表示
+                    .presentationBackgroundInteraction(.enabled(upThrough: .height(100)))
                 
+            }
         }
     }
 }
 
 struct SelectLocationModalView: View {
-    @Binding var isRoute: Bool
-    @Binding var isSelect: Bool
-    @State var isRun: Bool
+    @EnvironmentObject var state: State
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
                 Text("select location")
                     .font(.headline)
                 Button("場所を選択"){
-                    isRoute = true
+                    state.isRoute = true
                 }
-                .sheet(isPresented: $isRoute) {
-                    routeModalView(isSelect: $isSelect, isRoute: $isRoute, isRun: isRun)
+                .sheet(isPresented: $state.isRoute) {
+                    routeModalView()
                         .presentationBackground(.regularMaterial)
                         .presentationDetents([.height(200)]) // デフォルトは小さいサイズ
                         .presentationDragIndicator(.visible) // ドラッグインジケータを表示
@@ -80,22 +70,20 @@ struct SelectLocationModalView: View {
 }
 
 struct routeModalView: View {
-    @Binding var isSelect: Bool
-    @Binding var isRoute: Bool
-    @State var isRun: Bool
+    @EnvironmentObject var state: State
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
                 Text("select route")
                     .font(.headline)
                 Button("戻る"){
-                    isSelect = true
-                    isRoute = false
+                    state.isSelect = true
+                    state.isRoute = false
                 }
                 Button("進む"){
-                    isSelect = false
-                    isRoute = false
-                    isRun = true
+                    state.isSelect = false
+                    state.isRoute = false
+                    state.isRun = true
                 }
 
             }
@@ -107,5 +95,6 @@ struct routeModalView: View {
 
 
 #Preview {
-    ContentView()
+    @StateObject var state = State()
+    ContentView().environmentObject(state)
 }

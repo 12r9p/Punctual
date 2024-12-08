@@ -38,9 +38,22 @@
 		59850C712D042EE200C670EC /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		59850C7D2D04B3C300C670EC /* Exceptions for "Punctual" folder in "Punctual" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 59850C322D03F3F200C670EC /* Punctual */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		59850C352D03F3F200C670EC /* Punctual */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				59850C7D2D04B3C300C670EC /* Exceptions for "Punctual" folder in "Punctual" target */,
+			);
 			path = Punctual;
 			sourceTree = "<group>";
 		};
@@ -422,6 +435,8 @@
 				DEVELOPMENT_TEAM = D9BGZ8LH6C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Punctual/Info.plist;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "アプリが使用中に位置情報を取得します。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -451,6 +466,8 @@
 				DEVELOPMENT_TEAM = D9BGZ8LH6C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Punctual/Info.plist;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "アプリが使用中に位置情報を取得します。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

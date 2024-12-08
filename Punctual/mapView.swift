@@ -5,69 +5,95 @@
 //  Created by 佐藤匠 on 2024/12/07.
 //
 import SwiftUI
+import CoreLocation
 import MapKit
 
 struct MapView: View {
-    @Binding var isSelect: Bool
-    @Binding var isRoute: Bool
-    @Binding var isRun: Bool
-    @Binding var isFinish: Bool
-    @Binding var degub: Bool
+    @EnvironmentObject var state: State
     
-    @State private var region = MKCoordinateRegion(
-            center: CLLocationCoordinate2D(latitude: 35.6895, longitude: 139.6917), // 初期座標: 東京
-            span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-        )
-        
-        @State private var centerCoordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 35.6895, longitude: 139.6917)
-        
+    
     var body: some View {
-        VStack{
-            if degub{
-                Toggle("Select", isOn: $isSelect)
-                Toggle("Route", isOn: $isRoute)
-                Toggle("Run", isOn: $isRun)
-                Toggle("Finish", isOn: $isFinish)
-            }
-            if isSelect && !isRoute && !isRun && !isFinish{
-                ZStack {
-                    // 地図
-                    Map(coordinateRegion: $region, interactionModes: .all)
-                        .ignoresSafeArea()
-                    
-                    // 画面中央のピン
-                    Image(systemName: "mappin.circle.fill")
-                        .font(.system(size: 40))
-                        .foregroundColor(.red)
-                        .offset(y: -20) // ピンの位置調整
-                    
-                    // 座標を表示するラベル
+        if state.isSelect && !state.isRoute && !state.isRun && !state.isFinish{
+            ZStack {
+                // 地図
+                Map(coordinateRegion: $state.region,
+                    interactionModes: .all,
+                    showsUserLocation: true
+                    //userTrackingMode: .constant(.follow) //追跡
+                )
+                .mapControls {
+                    MapCompass()
+                        .mapControlVisibility(.visible)
+                    MapPitchToggle()
+                        .mapControlVisibility(.visible)
+                    MapScaleView()
+                        .mapControlVisibility(.hidden)
+                    MapUserLocationButton()
+                        .mapControlVisibility(.automatic)
+                }
+                .mapStyle(.standard)
+                .ignoresSafeArea()
+                
+                // 画面中央のピン
+                Image(systemName: "mappin")
+                    .font(.system(size: 40))
+                    .offset(y: -20) // ピンの位置調整
+                
+                // 座標を表示するラベル
+                if state.debug{
                     VStack {
-                        
-                        Text("緯度: \(region.center.latitude), 経度: \(region.center.longitude)")
-                            .padding()
-                            .background(Color.white)
-                            .cornerRadius(8)
-                            .shadow(radius: 4)
-                            .padding()
+                        VStack {
+                            Text("緯度: \(state.region.center.latitude), 経度: \(state.region.center.longitude)")
+                        }
+                        .padding()
+                        .background()
+                        .cornerRadius(8)
+                        .shadow(radius: 4)
+                        .padding()
                         Spacer()
                     }
                 }
-                
-            }
-            else if isRoute{
-                Map()
             }
         }
-        
+        else if state.isRoute{
+            Map()
+        }
+        else if state.isRun{
+            ZStack {
+                polylineMap()
+                // 速度情報を表示する UI
+                VStack {
+                    Spacer()
+                    VStack(spacing: 10) {
+                        Text("現在の速度")
+                            .font(.headline)
+                        
+                        if let speed = state.speed, speed >= 0 {
+                            Text("\(speed * 3.6, specifier: "%.1f") km/h") // m/s を km/h に変換
+                                .font(.largeTitle)
+                        } else {
+                            Text("-- km/h")
+                                .font(.largeTitle)
+                        }
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(10)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 20)
+                }
+            }
+            
+        }
+        else if state.isFinish{
+            Map()
     }
 }
+    }
+
 
 #Preview {
-    @State var isSelect: Bool = true
-    @State var isRoute: Bool = false
-    @State var isRun: Bool = false
-    @State var isFinish: Bool = false
-    @State var debug: Bool = true
-    MapView(isSelect: $isSelect, isRoute: $isRoute, isRun: $isRun, isFinish: $isFinish, degub: $debug)
+    @StateObject var state = State()
+    MapView().environmentObject(state)
 }
