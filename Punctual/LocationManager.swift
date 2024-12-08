@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreLocation
+import MapKit
 
 class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     private var locationManager = CLLocationManager()
@@ -15,6 +16,8 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var locationError: String? = nil
     @Published var authorizationStatus: CLAuthorizationStatus?
     @Published var locations: [CLLocationCoordinate2D] = []  // 位置情報の履歴を保持
+    @Published var speed: CLLocationSpeed?
+    @Published var routePolyline: [CLLocationCoordinate2D] = []
     
     override init() {
         super.init()
@@ -44,13 +47,22 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             }
         }
     }
+
+    
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let lastLocation = locations.last {
             DispatchQueue.main.async {
+                //位置を記録
                 self.location = lastLocation
                 self.locationError = nil  // エラーメッセージをクリア
+                
                 self.locations.append(lastLocation.coordinate)  // 位置情報を記録
+                
+                //速度を記録
+                self.speed = lastLocation.speed
+                
+                
             }
             print("Updated location: \(lastLocation.coordinate.latitude), \(lastLocation.coordinate.longitude)")
         } else {

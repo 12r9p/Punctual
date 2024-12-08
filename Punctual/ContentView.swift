@@ -12,6 +12,7 @@ struct ContentView: View {
     @EnvironmentObject var state: State
     
     
+    
     //    @State private var preview = RunningActivityView(
     //        targetTime: calendar.date(from: DateComponents(year: 2024, month: 12, day: 7, hour: 16, minute: 0, second: 0))!,
     //        needSpeed: 6.6,
@@ -19,10 +20,9 @@ struct ContentView: View {
     //        remainingDistance: 100,
     //        totalDistance: 1000
     //    )
-    
-    
     var body: some View {
         VStack{
+            
             if state.debug{
                 Toggle("Select", isOn: $state.isSelect)
                 Toggle("Route", isOn: $state.isRoute)
@@ -53,6 +53,7 @@ struct SelectLocationModalView: View {
                 Text("select location")
                     .font(.headline)
                 Button("場所を選択"){
+                    state.targetLocation = state.region.center
                     state.isRoute = true
                 }
                 .sheet(isPresented: $state.isRoute) {
@@ -71,6 +72,9 @@ struct SelectLocationModalView: View {
 
 struct routeModalView: View {
     @EnvironmentObject var state: State
+    @StateObject private var locationManager = LocationManager()
+
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
@@ -80,12 +84,17 @@ struct routeModalView: View {
                     state.isSelect = true
                     state.isRoute = false
                 }
+                DatePicker("ラベル", selection: $state.targetTime)
                 Button("進む"){
                     state.isSelect = false
                     state.isRoute = false
                     state.isRun = true
                 }
-
+                if state.debug{
+                    Text("現在地:\(locationManager.location)")
+                    Text("目的地:\(state.region.center)")
+                    Text ("\(state.targetTime)")
+                }
             }
             .padding()
         }

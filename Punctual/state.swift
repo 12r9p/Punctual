@@ -10,7 +10,10 @@ import SwiftUI
 import MapKit
 
 class State: ObservableObject {
-    @Published var debug: Bool = true
+    @Published var date: Date = .init()
+    
+    
+    @Published var debug: Bool = false
     //other state
     @Published  var calendar = Calendar(identifier: .gregorian)
 
@@ -20,19 +23,20 @@ class State: ObservableObject {
     @Published var isRun: Bool = false
     @Published var isFinish: Bool = false
 
-    //route state
-    @Published var turgetLocation: CLLocationCoordinate2D = .init()
-    @Published var totalDistance: Double = 0
+    //select Location
+    @Published var targetLocation: CLLocationCoordinate2D = .init()
+    @Published var CLLlocation: CLLocationCoordinate2D = .init()
     
+    //route state
+    @Published var totalDistance: Double = 0
+    @Published var targetTime: Date = .init()
     
     
     //running state
-    @Published var targetTime: Date = .init()
     @Published var needSpeed: Double = 0
     @Published var speedDifference: Double = 0
-    @Published var remainingTime: TimeInterval = 0
-//    @Published var speed: Double = 0
-    @Published var remainingDistance: Double = 0
+    @Published var remainingTime: String = ""
+    @Published var remainingDistance: Double? = 0
     
     //map
     
@@ -52,8 +56,8 @@ class State: ObservableObject {
     @Published var position: MapCameraPosition = .automatic
     
     @Published var speeds: [CLLocationSpeed] = []  // 速度の履歴
-    @Published var speed: CLLocationSpeed? = 0
-    @Published var DoubleSpeed: Double? = 0
+//    @Published var speed: Double? = 0
+//    @Published var DoubleSpeed: Double? = 0
     @Published var locationManager = CLLocationManager()
     
 }

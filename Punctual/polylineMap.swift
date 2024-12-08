@@ -13,13 +13,19 @@ struct polylineMap: View {
     @EnvironmentObject var state: State
     @StateObject private var locationManager = LocationManager()
     
+    
     var body: some View {
         VStack {
             if !locationManager.locations.isEmpty {
                 Map(position: $state.position) {
                     // 通った道を描画
                     MapPolyline(coordinates: locationManager.locations)
+                        .stroke(.green, lineWidth: 5)
+                    MapPolyline(coordinates: locationManager.routePolyline)
                         .stroke(.blue, lineWidth: 5)
+                    
+                    //pin
+                    
                 }
                 .mapControls {
                     MapUserLocationButton()
